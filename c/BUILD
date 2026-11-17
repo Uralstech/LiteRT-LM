@@ -153,6 +153,19 @@ cc_library(
     ],
 )
 
+# Compiled error reporter implementation for standalone C API libraries that
+# need to expose the common thread-local error reporting functions.
+cc_library(
+    name = "error_reporter_impl",
+    srcs = ["error_reporter.cc"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":error_reporter_internal",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings:string_view",
+    ],
+)
+
 # Header library for engine + session C API.
 cc_library(
     name = "engine_headers",
@@ -592,6 +605,57 @@ cc_binary(
         ":experimental_headers",
         ":model_info_headers",
         "//runtime/engine:engine_impl_selected",
+    ] + select({
+        "//conditions:default": [],
+    }),
+)
+
+# Same LiteRT-LM C API as :litert-lm with the Omni STT/TTS C API linked into
+# this single shared library. Keep the normal target independent so existing
+# packages do not need to include Omni model code.
+cc_binary(
+    name = "litert-lm-omni",
+    srcs = [
+        "conversation.cc",
+        "embedding_engine.cc",
+        "engine.cc",
+        "error_reporter.cc",
+        "experimental.cc",
+        "model_info.cc",
+    ],
+    additional_linker_inputs = [":litert_lm_omni_c_api_linux.lds"],
+    copts = ["-fvisibility=hidden"],
+    features = ["-legacy_whole_archive"],
+    linkopts = select({
+        "@platforms//os:macos": [
+            "-Wl,-exported_symbol,_litert_lm_*",
+            "-Wl,-exported_symbol,_litert_omni_*",
+            "-Wl,-dead_strip",
+        ],
+        "@platforms//os:ios": [
+            "-Wl,-exported_symbol,_litert_lm_*",
+            "-Wl,-exported_symbol,_litert_omni_*",
+            "-Wl,-dead_strip",
+        ],
+        "@platforms//os:windows": [],
+        "//conditions:default": [
+            "-Wl,--no-undefined",
+            "-Wl,--strip-all",
+            "-Wl,--gc-sections",
+            "-Wl,-Bsymbolic",
+            "-Wl,-rpath,$$ORIGIN",
+            "-Wl,--version-script=$(execpath :litert_lm_omni_c_api_linux.lds)",
+        ],
+    }),
+    linkshared = 1,
+    deps = ENGINE_COMMON_DEPS + [
+        ":conversation_headers",
+        ":embedding_engine_headers",
+        ":engine_headers",
+        ":experimental_headers",
+        ":model_info_headers",
+        "//runtime/engine:engine_impl_selected",
+        "//c/omni:omni_c_api",
     ] + select({
         "//conditions:default": [],
     }),
