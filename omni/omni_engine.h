@@ -60,6 +60,10 @@ struct OmniEngineSettings {
   int num_threads = 4;
   // If true, forces FP32 precision on GPU instead of the default FP16.
   bool force_fp32_on_gpu = false;
+  // Requests low scheduling priority for GPU work, where supported.
+  bool gpu_context_low_priority = false;
+  // GPU kernel batch-size hint. Zero leaves the runtime default.
+  int hint_kernel_batch_size = 0;
 
   // Optional per-model asset paths and download URLs.
   std::string model_path;

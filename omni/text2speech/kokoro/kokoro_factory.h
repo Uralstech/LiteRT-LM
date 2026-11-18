@@ -77,7 +77,9 @@ absl::Status InitKokoroResources(KokoroModelConfig& config,
                                  absl::string_view cache_dir,
                                  lm::Backend backend, int num_threads,
                                  ::litert::Environment& env,
-                                 ModelResources& resources);
+                                 ModelResources& resources,
+                                 bool gpu_context_low_priority = false,
+                                 int hint_kernel_batch_size = 0);
 
 // Revises `text_chunk_config` for Kokoro's target bucket capacity.
 TextChunkConfig ReviseTextChunkConfigForKokoro(

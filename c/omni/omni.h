@@ -85,6 +85,16 @@ litert_omni_tts_engine_settings_set_backend(
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_tts_engine_settings_set_num_threads(
     LiteRtOmniTtsEngineSettings* settings, int num_threads);
+// Requests low GPU scheduling priority where supported. The kernel batch size
+// is passed as a GPU runtime hint; zero preserves the runtime default. These
+// settings can improve responsiveness, but do not impose a GPU utilization
+// limit.
+LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
+litert_omni_tts_engine_settings_set_gpu_context_low_priority(
+    LiteRtOmniTtsEngineSettings* settings, bool low_priority);
+LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
+litert_omni_tts_engine_settings_set_hint_kernel_batch_size(
+    LiteRtOmniTtsEngineSettings* settings, int batch_size);
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_tts_engine_settings_set_max_frames(
     LiteRtOmniTtsEngineSettings* settings, int max_frames);
@@ -174,6 +184,12 @@ litert_omni_asr_engine_settings_set_backend(
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_asr_engine_settings_set_num_threads(
     LiteRtOmniAsrEngineSettings* settings, int num_threads);
+LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
+litert_omni_asr_engine_settings_set_gpu_context_low_priority(
+    LiteRtOmniAsrEngineSettings* settings, bool low_priority);
+LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
+litert_omni_asr_engine_settings_set_hint_kernel_batch_size(
+    LiteRtOmniAsrEngineSettings* settings, int batch_size);
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_asr_engine_settings_set_overlap_ratio(
     LiteRtOmniAsrEngineSettings* settings, float overlap_ratio);

@@ -57,13 +57,17 @@ namespace {
 
 ModelOptions MakeModelOptions(absl::string_view model_dir,
                               absl::string_view cache_dir, lm::Backend backend,
-                              int num_threads, bool force_fp32_on_gpu) {
+                              int num_threads, bool force_fp32_on_gpu,
+                              bool gpu_context_low_priority,
+                              int hint_kernel_batch_size) {
   ModelOptions options;
   options.model_dir = model_dir;
   options.cache_dir = cache_dir;
   options.backend = backend;
   options.num_threads = num_threads;
   options.force_fp32_on_gpu = force_fp32_on_gpu;
+  options.gpu_context_low_priority = gpu_context_low_priority;
+  options.hint_kernel_batch_size = hint_kernel_batch_size;
   return options;
 }
 
@@ -109,7 +113,9 @@ absl::Status InitKokoroResources(KokoroModelConfig& config,
                                  absl::string_view cache_dir,
                                  lm::Backend backend, int num_threads,
                                  ::litert::Environment& env,
-                                 ModelResources& resources) {
+                                 ModelResources& resources,
+                                 bool gpu_context_low_priority,
+                                 int hint_kernel_batch_size) {
   // The acoustic model is slower on GPU than on CPU in practice, so a GPU
   // engine backend still runs it on CPU unless explicitly configured; only the
   // vocoder follows the engine backend.
@@ -119,10 +125,12 @@ absl::Status InitKokoroResources(KokoroModelConfig& config,
 
   ModelOptions acoustic_options =
       MakeModelOptions(model_folder, cache_dir, acoustic_backend, num_threads,
-                       config.force_fp32_on_gpu);
+                       config.force_fp32_on_gpu, gpu_context_low_priority,
+                       hint_kernel_batch_size);
   ModelOptions vocoder_options =
       MakeModelOptions(model_folder, cache_dir, vocoder_backend, num_threads,
-                       config.force_fp32_on_gpu);
+                       config.force_fp32_on_gpu, gpu_context_low_priority,
+                       hint_kernel_batch_size);
 
   if (!resources.HasLmModelResources() && !model_folder.empty()) {
     const std::string litertlm_path =

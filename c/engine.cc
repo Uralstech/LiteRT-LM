@@ -789,6 +789,41 @@ LiteRtLmStatusCode litert_lm_engine_settings_set_num_threads(
   return kLiteRtLmStatusOk;
 }
 
+LiteRtLmStatusCode litert_lm_engine_settings_set_gpu_context_low_priority(
+    LiteRtLmEngineSettings* settings, bool low_priority) {
+  if (!IsValidEngineSettings(settings)) {
+    return kLiteRtLmStatusInvalidArgument;
+  }
+  auto& main_settings = settings->settings->GetMutableMainExecutorSettings();
+  auto advanced_settings = main_settings.GetAdvancedSettings().value_or(
+      litert::lm::AdvancedSettings());
+  advanced_settings.gpu_context_low_priority = low_priority;
+  main_settings.SetAdvancedSettings(advanced_settings);
+  return kLiteRtLmStatusOk;
+}
+
+LiteRtLmStatusCode litert_lm_engine_settings_set_hint_kernel_batch_size(
+    LiteRtLmEngineSettings* settings, int hint_kernel_batch_size) {
+  if (!IsValidEngineSettings(settings)) {
+    return kLiteRtLmStatusInvalidArgument;
+  }
+  if (hint_kernel_batch_size < 0) {
+    return litert::lm::c::ReturnError(
+        absl::StatusCode::kInvalidArgument,
+        "GPU hint kernel batch size must be non-negative.");
+  }
+  auto& main_settings = settings->settings->GetMutableMainExecutorSettings();
+  auto advanced_settings = main_settings.GetAdvancedSettings().value_or(
+      litert::lm::AdvancedSettings());
+  if (hint_kernel_batch_size == 0) {
+    advanced_settings.hint_kernel_batch_size.reset();
+  } else {
+    advanced_settings.hint_kernel_batch_size = hint_kernel_batch_size;
+  }
+  main_settings.SetAdvancedSettings(advanced_settings);
+  return kLiteRtLmStatusOk;
+}
+
 LiteRtLmStatusCode litert_lm_engine_settings_set_audio_num_threads(
     LiteRtLmEngineSettings* settings, int num_threads) {
   if (!IsValidEngineSettings(settings)) {

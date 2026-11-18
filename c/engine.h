@@ -882,6 +882,30 @@ LITERT_LM_C_API_EXPORT
 LiteRtLmStatusCode litert_lm_engine_settings_set_num_threads(
     LiteRtLmEngineSettings* settings, int num_threads);
 
+// Sets the GPU context scheduling priority for the main executor. When true,
+// the GPU context is requested at low priority where supported; false leaves
+// the context at its normal priority.
+//
+// @param settings The engine settings.
+// @param low_priority Whether to request low GPU context priority.
+// @return kLiteRtLmStatusOk on success, or kLiteRtLmStatusInvalidArgument if
+//   `settings` is NULL.
+LITERT_LM_C_API_EXPORT
+LiteRtLmStatusCode litert_lm_engine_settings_set_gpu_context_low_priority(
+    LiteRtLmEngineSettings* settings, bool low_priority);
+
+// Sets the GPU kernel batch-size hint for the main executor. Zero clears the
+// explicit hint and restores the engine's automatic default. Negative values
+// are invalid.
+//
+// @param settings The engine settings.
+// @param hint_kernel_batch_size The GPU kernel batch-size hint.
+// @return kLiteRtLmStatusOk on success, or kLiteRtLmStatusInvalidArgument if
+//   `settings` is NULL or `hint_kernel_batch_size` is negative.
+LITERT_LM_C_API_EXPORT
+LiteRtLmStatusCode litert_lm_engine_settings_set_hint_kernel_batch_size(
+    LiteRtLmEngineSettings* settings, int hint_kernel_batch_size);
+
 // Sets the number of threads for the audio CPU backend.
 //
 // @param settings The engine settings.

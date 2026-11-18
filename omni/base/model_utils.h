@@ -83,6 +83,10 @@ struct ModelOptions {
   int num_threads = 4;
   // If true, forces FP32 precision on GPU instead of FP16.
   bool force_fp32_on_gpu = false;
+  // Requests low scheduling priority for GPU work, where supported.
+  bool gpu_context_low_priority = false;
+  // GPU kernel batch-size hint. Zero leaves the runtime default.
+  int hint_kernel_batch_size = 0;
   // Patterns for tensor names to be declared as external tensors for GPU
   // (ml_drift).
   std::vector<std::string> external_tensor_patterns;

@@ -282,7 +282,8 @@ absl::StatusOr<std::unique_ptr<OmniSessionFactory>> GetKokoroSessionFactory(
   const int num_threads = settings.num_threads > 0 ? settings.num_threads : 4;
   LITERT_RETURN_IF_ERROR(InitKokoroResources(
       config, settings.model_path, settings.cache_dir,
-      ToLmBackend(settings.backend), num_threads, *shared_env, *resources));
+      ToLmBackend(settings.backend), num_threads, *shared_env, *resources,
+      settings.gpu_context_low_priority, settings.hint_kernel_batch_size));
   std::vector<std::string> available_voices =
       GetAvailableKokoroVoices(settings.model_path, lm_resources.get());
 

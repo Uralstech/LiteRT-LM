@@ -232,6 +232,8 @@ ModelOptions ToLmModelOptions(const OmniEngine::Settings& settings) {
   lm_options.cache_dir = settings.cache_dir.empty() ? std::string(kNoCacheDir)
                                                     : settings.cache_dir;
   lm_options.force_fp32_on_gpu = settings.force_fp32_on_gpu;
+  lm_options.gpu_context_low_priority = settings.gpu_context_low_priority;
+  lm_options.hint_kernel_batch_size = settings.hint_kernel_batch_size;
   return lm_options;
 }
 
@@ -364,6 +366,13 @@ absl::StatusOr<Options> CreateCompilationOptions(const ModelOptions& options,
     gpu_compilation_options.SetMadviseOriginalSharedTensors(true);
     gpu_compilation_options.SetConvertWeightsOnGpu(true);
     gpu_compilation_options.SetHintFullyDelegatedToSingleDelegate(true);
+    if (options.gpu_context_low_priority) {
+      gpu_compilation_options.SetPriority(GpuOptions::Priority::kLow);
+    }
+    if (options.hint_kernel_batch_size > 0) {
+      gpu_compilation_options.SetKernelBatchSize(
+          options.hint_kernel_batch_size);
+    }
     LrtSetGpuOptionsUseIrModel(gpu_compilation_options.Get(), false);
     for (const auto& pattern : options.external_tensor_patterns) {
       gpu_compilation_options.AddExternalTensorPattern(pattern.c_str());

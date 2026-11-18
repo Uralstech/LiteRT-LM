@@ -48,6 +48,8 @@ struct EngineSettings {
   std::string cache_dir;
   OmniEngine::Settings::Backend backend = OmniEngine::Settings::Backend::kCpu;
   int num_threads = 4;
+  bool gpu_context_low_priority = false;
+  int hint_kernel_batch_size = 0;
   int max_frames = 0;
   float overlap_ratio = 0.75f;
   std::string language;
@@ -78,6 +80,8 @@ OmniEngine::Settings ToOmniSettings(const EngineSettings& input) {
   settings.cache_dir = input.cache_dir;
   settings.backend = input.backend;
   settings.num_threads = input.num_threads;
+  settings.gpu_context_low_priority = input.gpu_context_low_priority;
+  settings.hint_kernel_batch_size = input.hint_kernel_batch_size;
   return settings;
 }
 
@@ -101,6 +105,10 @@ absl::Status ValidateEngineSettings(const EngineSettings& settings,
   if (settings.max_frames < 0) {
     return absl::InvalidArgumentError(
         "TTS max frames must be non-negative.");
+  }
+  if (settings.hint_kernel_batch_size < 0) {
+    return absl::InvalidArgumentError(
+        "GPU hint kernel batch size must be non-negative.");
   }
   if (!std::isfinite(settings.overlap_ratio) ||
       settings.overlap_ratio < 0.0f || settings.overlap_ratio >= 1.0f) {
@@ -473,6 +481,25 @@ LiteRtLmStatusCode litert_omni_tts_engine_settings_set_num_threads(
   return kLiteRtLmStatusOk;
 }
 
+LiteRtLmStatusCode
+litert_omni_tts_engine_settings_set_gpu_context_low_priority(
+    LiteRtOmniTtsEngineSettings* settings, bool low_priority) {
+  LITERT_LM_C_RETURN_IF_NULL(settings);
+  settings->settings.gpu_context_low_priority = low_priority;
+  return kLiteRtLmStatusOk;
+}
+
+LiteRtLmStatusCode litert_omni_tts_engine_settings_set_hint_kernel_batch_size(
+    LiteRtOmniTtsEngineSettings* settings, int batch_size) {
+  LITERT_LM_C_RETURN_IF_NULL(settings);
+  if (batch_size < 0) {
+    return ReturnError(absl::StatusCode::kInvalidArgument,
+                       "GPU hint kernel batch size must be non-negative.");
+  }
+  settings->settings.hint_kernel_batch_size = batch_size;
+  return kLiteRtLmStatusOk;
+}
+
 LiteRtLmStatusCode litert_omni_tts_engine_settings_set_max_frames(
     LiteRtOmniTtsEngineSettings* settings, int max_frames) {
   LITERT_LM_C_RETURN_IF_NULL(settings);
@@ -771,6 +798,25 @@ LiteRtLmStatusCode litert_omni_asr_engine_settings_set_num_threads(
                        "Number of threads must be positive.");
   }
   settings->settings.num_threads = num_threads;
+  return kLiteRtLmStatusOk;
+}
+
+LiteRtLmStatusCode
+litert_omni_asr_engine_settings_set_gpu_context_low_priority(
+    LiteRtOmniAsrEngineSettings* settings, bool low_priority) {
+  LITERT_LM_C_RETURN_IF_NULL(settings);
+  settings->settings.gpu_context_low_priority = low_priority;
+  return kLiteRtLmStatusOk;
+}
+
+LiteRtLmStatusCode litert_omni_asr_engine_settings_set_hint_kernel_batch_size(
+    LiteRtOmniAsrEngineSettings* settings, int batch_size) {
+  LITERT_LM_C_RETURN_IF_NULL(settings);
+  if (batch_size < 0) {
+    return ReturnError(absl::StatusCode::kInvalidArgument,
+                       "GPU hint kernel batch size must be non-negative.");
+  }
+  settings->settings.hint_kernel_batch_size = batch_size;
   return kLiteRtLmStatusOk;
 }
 
