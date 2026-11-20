@@ -85,8 +85,9 @@ litert_omni_tts_engine_settings_set_backend(
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_tts_engine_settings_set_num_threads(
     LiteRtOmniTtsEngineSettings* settings, int num_threads);
-// Requests low GPU scheduling priority where supported. The kernel batch size
-// is passed as a GPU runtime hint; zero preserves the runtime default. These
+// Requests low GPU scheduling priority for all GPU-backed TTS model components
+// where supported. The kernel batch size is passed as a GPU runtime hint to all
+// GPU-backed model components; zero preserves the runtime default. These
 // settings can improve responsiveness, but do not impose a GPU utilization
 // limit.
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
@@ -184,9 +185,13 @@ litert_omni_asr_engine_settings_set_backend(
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_asr_engine_settings_set_num_threads(
     LiteRtOmniAsrEngineSettings* settings, int num_threads);
+// Requests low GPU scheduling priority for all GPU-backed ASR model components
+// where supported.
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_asr_engine_settings_set_gpu_context_low_priority(
     LiteRtOmniAsrEngineSettings* settings, bool low_priority);
+// Sets the GPU kernel batch-size hint for all GPU-backed ASR model components.
+// Zero preserves the runtime default.
 LITERT_LM_C_API_EXPORT LiteRtLmStatusCode
 litert_omni_asr_engine_settings_set_hint_kernel_batch_size(
     LiteRtOmniAsrEngineSettings* settings, int batch_size);

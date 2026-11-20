@@ -220,6 +220,12 @@ absl::Status ConfigureLiteRtOptions(absl::string_view model_name,
     gpu_options.EnableInfiniteFloatCapping(true);
     gpu_options.EnableConstantTensorSharing(true);
     gpu_options.EnableAllowSrcQuantizedFcConvOps(true);
+    if (settings.gpu_context_low_priority) {
+      gpu_options.SetPriority(::litert::GpuOptions::Priority::kLow);
+    }
+    if (settings.hint_kernel_batch_size > 0) {
+      gpu_options.SetKernelBatchSize(settings.hint_kernel_batch_size);
+    }
 #if defined(__ANDROID__)
     gpu_options.SetPreferTextureWeights(true);
 #endif  // defined(__ANDROID__)

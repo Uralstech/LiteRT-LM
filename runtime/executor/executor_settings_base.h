@@ -260,6 +260,18 @@ class ExecutorSettingsBase {
     enable_mixed_precision_ = enable;
   }
 
+  // GPU scheduling priority APIs.
+  bool IsGpuContextLowPriority() const { return gpu_context_low_priority_; }
+  void SetGpuContextLowPriority(bool low_priority) {
+    gpu_context_low_priority_ = low_priority;
+  }
+
+  // GPU kernel batch-size hint APIs.
+  int GetHintKernelBatchSize() const { return hint_kernel_batch_size_; }
+  void SetHintKernelBatchSize(int batch_size) {
+    hint_kernel_batch_size_ = batch_size;
+  }
+
   // Should be used by consumers who want to write to a single weight cache
   // file. Returns, in order of preference:
   //   1. an open file descriptor to the weight cache file,
@@ -381,6 +393,12 @@ class ExecutorSettingsBase {
   // Optional setting to enable mixed precision. If true, it will override
   // activation data type to FP32 which underlying for mix precision.
   bool enable_mixed_precision_ = false;
+
+  // Whether GPU work for this executor should request low scheduling priority.
+  bool gpu_context_low_priority_ = false;
+
+  // GPU kernel batch-size hint. Zero leaves the runtime default unchanged.
+  int hint_kernel_batch_size_ = 0;
 
   // Optional LoRA model assets.
   std::optional<ModelAssets> lora_model_assets_;

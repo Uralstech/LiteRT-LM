@@ -1057,6 +1057,12 @@ absl::Status SetCommonGpuOptions(
   gpu_options.SetBackend(GpuOptions::Backend::kWebGpu);
 #endif  // defined(LITERT_USE_WEBGPU_ACCELERATOR)
   gpu_options.EnableConstantTensorSharing(true);
+  if (executor_settings.IsGpuContextLowPriority()) {
+    gpu_options.SetPriority(GpuOptions::Priority::kLow);
+  }
+  if (executor_settings.GetHintKernelBatchSize() > 0) {
+    gpu_options.SetKernelBatchSize(executor_settings.GetHintKernelBatchSize());
+  }
   ActivationDataType activation_type =
       executor_settings.GetActivationDataType().has_value()
           ? executor_settings.GetActivationDataType().value()
